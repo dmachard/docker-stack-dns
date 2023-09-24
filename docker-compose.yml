@@ -1,0 +1,85 @@
+version: "3"
+
+networks:
+  dns:
+    ipam:
+      config:
+        - subnet: 172.16.0.0/24
+
+services:
+  db:
+    image: mariadb:11.1.2
+    networks:
+      dns:
+        ipv4_address: 172.16.0.10
+    environment:
+      MARIADB_ROOT_PASSWORD: labpwd
+    volumes:
+      - ./data/db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -plabpwd"]
+      interval: 1s
+      timeout: 1s
+      retries: 5
+
+  root:
+    image: powerdns/pdns-auth-48:4.8.2
+    networks:
+      dns:
+        ipv4_address: 172.16.0.20
+    ports:
+      - '2053:53/udp'
+      - '2053:53/tcp'
+    volumes:
+      - ./conf/powerdns_root/pdns.conf:/etc/powerdns/pdns.conf
+      - ./conf/powerdns_root/zones/:/var/lib/powerdns
+
+  ns:
+    image: powerdns/pdns-auth-48:4.8.2
+    networks:
+      dns:
+        ipv4_address: 172.16.0.30
+    ports:
+      - '3053:53/udp'
+      - '3053:53/tcp'
+    volumes:
+      - ./conf/powerdns_auth/pdns.conf:/etc/powerdns/pdns.conf
+    depends_on:
+      db:
+        condition: service_healthy
+
+  rec:
+    image: powerdns/pdns-recursor-48:4.8.4
+    networks:
+      dns:
+        ipv4_address: 172.16.0.40
+    ports:
+      - '4053:53/udp'
+      - '4053:53/tcp'
+    volumes:
+      - ./conf/powerdns_rec/recursor.conf:/etc/powerdns/recursor.conf
+      - ./conf/powerdns_rec/recursor.lua:/etc/powerdns/recursor.lua
+      - ./conf/powerdns_rec/root.hints:/etc/powerdns/root.hints
+    depends_on:
+      - root
+      - ns
+
+  dist:
+    image: powerdns/dnsdist-18:1.8.1
+    networks:
+      dns:
+        ipv4_address: 172.16.0.50
+    ports:
+      - '5053:53/udp'
+      - '5053:53/tcp'
+    volumes:
+      - ./conf/powerdns_dist/dnsdist.conf:/etc/dnsdist/conf.d/dnsdist.conf
+
+  tap:
+    image: dmachard/go-dnscollector:v0.36.0-beta2
+    networks:
+      dns:
+    user: "1000:1000"
+    volumes:
+      - ./conf/dnscollector/config.yml:/etc/dnscollector/config.yml
+      - ./data/tap/:/var/dnscollector/

@@ -1,0 +1,13 @@
+.               1d      IN  SOA ns1.root-servers.dns dns.admin. ( 
+                                    156171  ; serial number
+                                    1800    ; refresh
+                                    900     ; update retry
+                                    604800  ; expiry
+                                    86400   ; minimum
+                                )
+
+.                           6d      IN NS   ns1.root-servers.dns.
+lab.                        2d      IN NS   ns1.gtld-servers.dns.
+
+ns1.root-servers.dns.       6d      IN A    172.16.0.20
+ns1.gtld-servers.dns.       2d      IN A    172.16.0.30

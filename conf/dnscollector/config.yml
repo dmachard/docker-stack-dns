@@ -1,0 +1,23 @@
+global:
+  trace:
+    verbose: true
+
+multiplexer:
+  collectors:
+    - name: tap
+      dnstap:
+        enable: true
+        listen-ip: 0.0.0.0
+        listen-port: 6000
+
+  loggers:
+    - name: file   
+      logfile:
+        enable: true
+        file-path:  /var/dnscollector/dnstap.log
+        flush-interval: 1
+        text-format: "timestamp-rfc3339ns identity operation rcode queryip responseip family protocol length qname qtype"
+
+  routes:
+    - from: [ tap ]
+      to: [ file ]
