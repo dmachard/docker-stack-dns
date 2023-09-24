@@ -4,15 +4,14 @@ Stack DNS with various DNS products like PowerDNS, CoreDNS, Bind
 
 ## Prerequisites
 
-Install docker: https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
-Install compose plugin: https://docs.docker.com/compose/install/linux/#install-using-the-repository
+- Install docker: https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+- Install compose plugin: https://docs.docker.com/compose/install/linux/#install-using-the-repository
+- Prepare `data` folder
 
-Prepare `data` folder
-
-```bash
-mkdir -p data/db data/tap
-chown -R 1000:1000 data/db data/tap
-```
+    ```bash
+    mkdir -p data/db data/tap
+    chown -R 1000:1000 data/db data/tap
+    ```
 
 ## Run the complete DNS infrastructure
 

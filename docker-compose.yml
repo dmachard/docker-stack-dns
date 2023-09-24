@@ -48,7 +48,7 @@ services:
       db:
         condition: service_healthy
 
-  rec:
+  rec1:
     image: powerdns/pdns-recursor-48:4.8.4
     networks:
       dns:
@@ -60,6 +60,21 @@ services:
       - ./conf/powerdns_rec/recursor.conf:/etc/powerdns/recursor.conf
       - ./conf/powerdns_rec/recursor.lua:/etc/powerdns/recursor.lua
       - ./conf/powerdns_rec/root.hints:/etc/powerdns/root.hints
+    depends_on:
+      - root
+      - ns
+
+  rec2:
+    image: mvance/unbound:1.18.0
+    networks:
+      dns:
+        ipv4_address: 172.16.0.41
+    ports:
+      - '4153:53/udp'
+      - '4153:53/tcp'
+    volumes:
+      - ./conf/unbound/unbound.conf:/opt/unbound/etc/unbound/unbound.conf
+      - ./conf/unbound/root.hints:/opt/unbound/etc/unbound/root.hints
     depends_on:
       - root
       - ns
@@ -79,6 +94,7 @@ services:
     image: dmachard/go-dnscollector:v0.36.0-beta2
     networks:
       dns:
+        ipv4_address: 172.16.0.60
     user: "1000:1000"
     volumes:
       - ./conf/dnscollector/config.yml:/etc/dnscollector/config.yml
