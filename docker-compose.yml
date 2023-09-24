@@ -16,6 +16,8 @@ services:
       MARIADB_ROOT_PASSWORD: labpwd
     volumes:
       - ./data/db:/var/lib/mysql
+    ports:
+      - '3306:3306/tcp'
     healthcheck:
       test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -plabpwd"]
       interval: 1s
